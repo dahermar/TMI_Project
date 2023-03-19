@@ -1,0 +1,36 @@
+body {
+	font-family: Candara, sans-serif;
+	color: #333;
+}
+
+.title {
+	text-align: center;
+	color: #333;
+	font-size: 32px;
+	margin-bottom: 20px;
+}
+
+.button {
+	display: block;
+	margin: 10px auto;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	outline: none;
+	color: #fff;
+	background-color: #333;
+	border: none;
+	border-radius: 5px;
+}
+
+.button:hover {
+	background-color: #3e8e41;
+}
+
+.button:active {
+	background-color: #3e8e41;
+	box-shadow: 0 3px #357e3d;
+	transform: translateY(4px);
+}
