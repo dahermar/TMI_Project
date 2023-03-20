@@ -2,6 +2,8 @@ body {
 	font-family: Candara, sans-serif;
 	color: #333;
 	text-align: center;
+	background: linear-gradient(to bottom, white, #a3a1a1) no-repeat center center fixed;
+	background-size: 100% 100%;
 }
 
 .title {
@@ -30,7 +32,12 @@ body {
 }
 
 .button:active {
-	background-color: #3e8e41;
-	box-shadow: 0 3px #357e3d;
+	background-color: #979797;
+	/*box-shadow: 0 3px #357e3d;*/
 	transform: translateY(4px);
 }
+
+.link-button {
+	text-decoration: none;
+  }
+  
