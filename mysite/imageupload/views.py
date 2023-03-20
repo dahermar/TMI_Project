@@ -9,10 +9,10 @@ def index(request):
         'latest_question_list': latest_question_list,
     }
     return render(request, 'imageupload/index.html', context)
-
+"""
 def menu(request):
     return render(request, 'imageupload/menu.html')
-
+"""
 def historial(request):
     return render(request, 'imageupload/historial.html')
 
@@ -24,7 +24,7 @@ def webcam_view(request):
 
 class ImageUploadView(CreateView):
     model = Image
-    fields = ['title', 'image']
+    fields = ['imagen']
     success_url = reverse_lazy('imageupload:index')
 
     
