@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Recopets - Menú</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+
+	<h1 class="title">Recopets</h1>
+	
+	<a href="{% url 'imageupload:info' %}" class="link-button"><button class="button">Reconocer imagen</button></a>
+	<a href="{% url 'imageupload:historial' %}" class="link-button"><button class="button">Historial</button></a>
+
+</body>
+</html>
