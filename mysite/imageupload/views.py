@@ -2,6 +2,7 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .models import Image
 from django.shortcuts import render
+from .forms import ImageUploadForm
 
 def index(request):
     latest_question_list = [1,2,3,4,5,6,7]
@@ -9,10 +10,12 @@ def index(request):
         'latest_question_list': latest_question_list,
     }
     return render(request, 'imageupload/index.html', context)
-"""
+
 def menu(request):
-    return render(request, 'imageupload/menu.html')
-"""
+    form = ImageUploadForm()
+    context = {'form': form}
+    return render(request, 'imageupload/menu.html', context)
+
 def historial(request):
     return render(request, 'imageupload/historial.html')
 

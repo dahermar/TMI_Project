@@ -2,10 +2,9 @@
 {% block title %}Recopets - Menú{% endblock %}
 {% block content %}
 <form method="post" enctype="multipart/form-data">
-	{% csrf_token %}
-	{{ form.as_p }}
-	<button class="button" type="submit">Reconocer imagen</button>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="button" type="submit">Reconocer imagen</button>
 </form>
-<a href="{% url 'imageupload:info' %}" class="link-button"><button class="button">Reconocer imagen</button></a>
 <a href="{% url 'imageupload:historial' %}" class="link-button"><button class="button">Historial</button></a>
 {% endblock %}
