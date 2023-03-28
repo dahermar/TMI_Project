@@ -39,5 +39,10 @@ body {
 
 .link-button {
 	text-decoration: none;
-  }
+}
+
+.imagen-little {
+	width: 150px;
+	height: 150px;
+}
   
