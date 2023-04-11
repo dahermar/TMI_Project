@@ -21,19 +21,73 @@ logger = logging.getLogger(__name__)
 
 def rekognition_view(request):
     if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            # obtener la imagen del formulario
+            image = form.cleaned_data['imagen']
+            # guardar la imagen en la ubicación deseada
+            
+            images_dir = os.path.join(settings.MEDIA_ROOT)
+
+            if not os.path.exists(images_dir):
+                os.makedirs(images_dir)
+            
+            file_path = os.path.join(settings.MEDIA_ROOT, image.name)
+            with open(file_path, 'wb') as f:
+                f.write(image.read())
+            # redirigir al usuario a una página de éxito
+            #return render(request, 'imageupload/info.html', {'image_path': file_path})
+            #rekognition_client = boto3.client('rekognition')
+
+            try:
+                #image = {'Bytes': image_file.read()}
+                #print(image_file)
+                #print(image)
+                #image_name = image_file.name
+                #rekognition_image = RekognitionImage(image, image_name, rekognition_client)
+                #max_labels = 20
+                #labels = rekognition_image.detect_labels(max_labels)
+                imagen =Image(image=file_path)
+                animal = imagen.detect_animal()
+                #animal = type(image_file)
+                
+                #animal_es ="jirafa"
+                # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
+
+                # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
+                results ={"animal": animal}
+                return render(request, 'imageupload/rekognition_results.html', results)
+            except Exception as e:
+                logger.error(str(e))
+                error = 'Error: No se pudo procesar la imagen'
+            # return render(request, 'rekognition_error.html', {'error': error})
+
+            #return render(request, 'imageupload/rekognition_form.html')
+        else:
+            form = ImageUploadForm()
+        return render(request, 'imageupload/menu.html', {'form': form})
+    """
+    if request.method == 'POST':
         image_file = request.FILES.get('image')
-        print(image_file)
+        image_str= "./imageupload/images/" + str(image_file)
+        ruta_relativa = image_file.name
+        ruta_absoluta = os.path.abspath(ruta_relativa)
+        print(ruta_absoluta )
+        print("Esto",image_str)
+        print("Tipo",type(image_str))
         #rekognition_client = boto3.client('rekognition')
 
         try:
-            image = {'Bytes': image_file.read()}
+            #image = {'Bytes': image_file.read()}
             #print(image_file)
             #print(image)
             #image_name = image_file.name
             #rekognition_image = RekognitionImage(image, image_name, rekognition_client)
             #max_labels = 20
             #labels = rekognition_image.detect_labels(max_labels)
-            imagen =Image(image=image)
+            print(os.getcwd())
+            imagen =Image(image=image_str)
             animal = imagen.detect_animal()
             #animal = type(image_file)
             
@@ -49,7 +103,7 @@ def rekognition_view(request):
            # return render(request, 'rekognition_error.html', {'error': error})
 
     return render(request, 'imageupload/rekognition_form.html')
-
+"""
 
 def index(request):
     latest_question_list = [1, 2, 3, 4, 5, 6, 7]
@@ -75,12 +129,14 @@ def webcam_view(request):
 
 class ImageUploadView(CreateView):
     model = Image
-    fields = ['title', 'image']
+    fields = [ 'image']
     success_url = reverse_lazy('imageupload:index')
 
 def image_upload(request):
     if request.method == 'POST':
+        print("hola")
         form = ImageUploadForm(request.POST, request.FILES)
+        
         if form.is_valid():
             # obtener la imagen del formulario
             image = form.cleaned_data['imagen']

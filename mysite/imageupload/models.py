@@ -51,8 +51,9 @@ class Animal(models.Model):
 
 class Image(models.Model):
     
-
-    image = models.ImageField(upload_to='images')
+    
+    #image = models.ImageField(upload_to='images')
+    image= models.CharField(max_length=255)
     #detected_animal = models.ForeignKey(Animal, null=True, blank=True, on_delete=models.SET_NULL)
     translation = models.CharField(max_length=255, null=True, blank=True)
    
@@ -60,25 +61,47 @@ class Image(models.Model):
             self.image = image
     
     def detect_animal(self):
+        with open("./imageupload/animals.txt", "r") as archivo:
+            animal_list = archivo.readlines()
+
+        # Remove the newline character from each animal name.
+        animal_list = [animal.strip() for animal in animal_list]
+        # Convert the list to a set to remove duplicates.
+        set_animals = set(animal_list)
+        #print(set_animals)
+
+
         # Initialize the Rekognition client
         rekognition_client = boto3.client('rekognition')
         # Detect labels in the image
-        image = RekognitionImage(image=self.image.read(), image_name=self.image.name, rekognition_client=rekognition_client)
+
+        image = RekognitionImage.from_file(self.image, rekognition_client)
+        #print("Detcatdo")
         labels = image.detect_labels(20)
         # Look for the detected animal label
-        set_animals = set(Animal.objects.all().values_list('name', flat=True))
+        #print(labels)
+        #set_animals = set(Animal.objects.all().values_list('name', flat=True))
+        #print(set_animals)
         detected_animal = None
         for label in labels:
+            print(label.name)
             if label.name in set_animals:
                 detected_animal = label.name
                 break
         # Translate the animal name if detected
+        print(detected_animal)
         if detected_animal:
+            print(1)
             translator = Translator()
-            translation = translator.translate(detected_animal, dest='es').text
+            print(2)
+            translation = translator.translate("CHICKEN", dest='es').text
+            print(3)
         else:
+            print(4)
             translation = None
         #return detected_animal, translation
+        print(5)
+        print(translation)
         return translation
 
     def save(self, *args, **kwargs):
