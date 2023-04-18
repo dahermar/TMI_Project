@@ -13,15 +13,48 @@
 <body>
     <h1>Webcam en tiempo real</h1>
     <video id="video" autoplay></video>
+    <button id="boton-captura">Tomar Foto</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <p>{% csrf_token %}</p> 
     <script>
+        var video = document.querySelector('#video');
+        var canvas = document.querySelector('#canvas');
+        var botonCaptura = document.querySelector('#boton-captura');
+
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function(stream) {
-                var video = document.querySelector('#video');
                 video.srcObject = stream;
             })
             .catch(function(err) {
                 console.error(err);
             });
+
+        botonCaptura.addEventListener('click', function() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            var dataURL = canvas.toDataURL('image/png');
+            console.log(dataURL);
+            //Aquí puedes hacer algo con la foto, por ejemplo enviarla al servidor o mostrarla en una imagen
+            // Enviar la imagen al servidor
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '{% url "imageupload:guardar_imagen" %}');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    console.log(xhr.responseText);
+                } else {
+                    console.error(xhr.statusText);
+                }
+            };
+            xhr.onerror = function() {
+                console.error(xhr.statusText);
+            };
+            xhr.send('foto=' + encodeURIComponent(dataURL));
+            
+        });
     </script>
 </body>
 </html>

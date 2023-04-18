@@ -16,6 +16,10 @@ from rekognition_objects import (
     RekognitionFace, RekognitionCelebrity, RekognitionLabel,
     RekognitionModerationLabel, RekognitionText, show_bounding_boxes, show_polygons)
 from .models import RekognitionImage
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +129,8 @@ def info(request):
     return render(request,'imageupload/info.html')
 
 def webcam_view(request):
-    return render(request, 'imageupload/webcam.html')
+    csrf_token =get_token(request)
+    return render(request, 'imageupload/webcam.html', {'csrf_token': csrf_token})
 
 class ImageUploadView(CreateView):
     model = Image
@@ -155,3 +160,19 @@ def image_upload(request):
     else:
         form = ImageUploadForm()
     return render(request, 'imageupload/menu.html', {'form': form})    
+
+#TODO
+@csrf_exempt
+def guardar_imagen(request):
+    if request.method == 'POST':
+        foto = request.POST.get('foto')
+        #print("f",foto) 
+        rekognition_client = boto3.client('rekognition')
+        imagen =RekognitionImage(image=foto,image_name="foto.jpg",rekognition_client=rekognition_client)
+        res=imagen.detect_faces()
+        imagen.compare_faces(res, res,80)
+        #imagen = Image(image=foto)
+        #imagen.detect_face()
+        #imagen.save()
+        return JsonResponse({'mensaje': 'Imagen guardada exitosamente.'})
+    return JsonResponse({'error': 'Solicitud no válida.'})
