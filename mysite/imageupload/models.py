@@ -5,7 +5,8 @@ from django.db import models
 from rekognition_objects import (
     RekognitionFace, RekognitionCelebrity, RekognitionLabel,
     RekognitionModerationLabel, RekognitionText, show_bounding_boxes, show_polygons)
-from googletrans import Translator
+#from googletrans import Translator
+from translate import Translator
 
 logger = logging.getLogger(__name__)
 
@@ -91,16 +92,12 @@ class Image(models.Model):
         # Translate the animal name if detected
         print(detected_animal)
         if detected_animal:
-            print(1)
-            translator = Translator()
-            print(2)
-            translation = translator.translate("CHICKEN", dest='es').text
-            print(3)
+            translator = Translator(to_lang="es")
+            #translation = translator.translate("CHICKEN", dest='es').text
+            translation = translator.translate(detected_animal)   
         else:
-            print(4)
             translation = None
         #return detected_animal, translation
-        print(5)
         print(translation)
         return translation
 
