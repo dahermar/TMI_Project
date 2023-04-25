@@ -11,8 +11,8 @@
         <h2>Animal detectado:</h2>
         <p>{{ animal }}</p>
         <audio autoplay>
-            <source src="{{ streaming.url }}" type="{{ streaming['Content-Type'] }}">
-            <!--<source src="{{ streaming }}" type="audio/mpeg">-->
+            <!--<source src="{{ streaming.url }}" type="{{ streaming['Content-Type'] }}">-->
+            <source src="{{ streaming }}" type="audio/mpeg">
         </audio>
         {% else %}
         <h2>No se detectó ningún animal en la imagen.</h2>
