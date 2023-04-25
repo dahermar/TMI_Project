@@ -16,6 +16,7 @@ from rekognition_objects import (
     RekognitionFace, RekognitionCelebrity, RekognitionLabel,
     RekognitionModerationLabel, RekognitionText, show_bounding_boxes, show_polygons)
 from .models import RekognitionImage
+from .models import PollyAudio
 
 logger = logging.getLogger(__name__)
 
@@ -36,34 +37,28 @@ def rekognition_view(request):
             file_path = os.path.join(settings.MEDIA_ROOT, image.name)
             with open(file_path, 'wb') as f:
                 f.write(image.read())
-            # redirigir al usuario a una página de éxito
-            #return render(request, 'imageupload/info.html', {'image_path': file_path})
-            #rekognition_client = boto3.client('rekognition')
 
             try:
-                #image = {'Bytes': image_file.read()}
-                #print(image_file)
-                #print(image)
-                #image_name = image_file.name
-                #rekognition_image = RekognitionImage(image, image_name, rekognition_client)
-                #max_labels = 20
-                #labels = rekognition_image.detect_labels(max_labels)
                 imagen =Image(image=file_path)
                 animal = imagen.detect_animal()
-                #animal = type(image_file)
                 
-                #animal_es ="jirafa"
                 # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
 
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
-                results ={"animal": animal}
+
+                audio = PollyAudio()
+
+                streaming = audio.transcript_text('Hola Mundo')
+
+
+                results = {
+                    "animal": animal,
+                    "streaming": streaming
+                }
                 return render(request, 'imageupload/rekognition_results.html', results)
             except Exception as e:
                 logger.error(str(e))
                 error = 'Error: No se pudo procesar la imagen'
-            # return render(request, 'rekognition_error.html', {'error': error})
-
-            #return render(request, 'imageupload/rekognition_form.html')
         else:
             form = ImageUploadForm()
         return render(request, 'imageupload/menu.html', {'form': form})

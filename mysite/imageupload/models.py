@@ -8,6 +8,9 @@ from rekognition_objects import (
 #from googletrans import Translator
 from translate import Translator
 
+from django.http import StreamingHttpResponse
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,6 +51,23 @@ class Animal(models.Model):
 
     def __str__(self):
         return self.name
+
+class PollyAudio(models.Model):
+
+    polly = None
+
+    def _init(self):
+        self.polly = boto3.client('polly')
+    
+    def transcript_text(self, text):
+        if self.polly is not None:
+            response = self.polly.synthesize_speech(Text=text, OutputFormat='mp3', VoiceId='Joanna')
+            audio_content = response['AudioStream'].read()
+            response = StreamingHttpResponse(audio_content, content_type='audio/mpeg')
+            response['Content-Disposition'] = 'attachment; filename="polly.mp3"'
+            return response
+        else :
+            logger.info("Error getting the audio from the transcript.")
 
 
 class Image(models.Model):
