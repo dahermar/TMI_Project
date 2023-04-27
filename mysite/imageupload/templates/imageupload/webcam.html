@@ -13,15 +13,51 @@
 <body>
     <h1>Webcam en tiempo real</h1>
     <video id="video" autoplay></video>
+    <button id="boton-captura">Tomar Foto</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <p>{% csrf_token %}</p> 
     <script>
+        var video = document.querySelector('#video');
+        var canvas = document.querySelector('#canvas');
+        var botonCaptura = document.querySelector('#boton-captura');
+
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function(stream) {
-                var video = document.querySelector('#video');
                 video.srcObject = stream;
             })
             .catch(function(err) {
                 console.error(err);
             });
+
+            botonCaptura.addEventListener('click', function() {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                var dataURL = canvas.toDataURL('image/png');
+                console.log(dataURL);
+                //Aquí puedes hacer algo con la foto, por ejemplo enviarla al servidor o mostrarla en una imagen
+                // Enviar la imagen al servidor
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '{% url "imageupload:reconocimiento_facial" %}');
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                var formData = new FormData();
+                formData.append('foto', dataURLtoBlob(dataURL), 'foto.png');
+                xhr.send(formData);
+            });
+
+            function dataURLtoBlob(dataURL) {
+                var parts = dataURL.split(';base64,');
+                var contentType = parts[0].split(':')[1];
+                var raw = window.atob(parts[1]);
+                var rawLength = raw.length;
+                var uInt8Array = new Uint8Array(rawLength);
+                for (var i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+                return new Blob([uInt8Array], { type: contentType });
+            }
+
     </script>
 </body>
 </html>
