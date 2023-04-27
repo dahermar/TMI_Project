@@ -184,11 +184,3 @@ class Image(models.Model):
             return False
 
 
-'''
-    def save(self, *args, **kwargs):
-        # Detect the animal and save the detection results before saving the image
-        detected_animal, translation = self.detect_animal()
-        self.detected_animal = Animal.objects.filter(name=detected_animal).first() if detected_animal else None
-        self.translation = translation
-        super
-'''
