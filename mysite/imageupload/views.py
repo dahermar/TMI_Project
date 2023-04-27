@@ -16,6 +16,10 @@ from rekognition_objects import (
     RekognitionFace, RekognitionCelebrity, RekognitionLabel,
     RekognitionModerationLabel, RekognitionText, show_bounding_boxes, show_polygons)
 from .models import RekognitionImage
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +129,8 @@ def info(request):
     return render(request,'imageupload/info.html')
 
 def webcam_view(request):
-    return render(request, 'imageupload/webcam.html')
+    csrf_token =get_token(request)
+    return render(request, 'imageupload/webcam.html', {'csrf_token': csrf_token})
 
 class ImageUploadView(CreateView):
     model = Image
@@ -155,3 +160,30 @@ def image_upload(request):
     else:
         form = ImageUploadForm()
     return render(request, 'imageupload/menu.html', {'form': form})    
+
+#TODO
+@csrf_exempt
+def guardar_imagen(request):
+    if request.method == 'POST':
+        foto = request.FILES.get('foto')
+        #Guardar foto y pasar url
+        images_dir = os.path.join(settings.MEDIA_ROOT)
+        if not os.path.exists(images_dir):
+            os.makedirs(images_dir)
+        
+        file_path = os.path.join(settings.MEDIA_ROOT, "cara.jpg")
+        with open(file_path, 'wb') as f:
+            f.write(foto.read())
+        try:
+            imagen =Image(image=file_path)
+            iguales = imagen.compare_face()
+            print(iguales)
+        except Exception as e:
+                logger.error(str(e))
+                error = 'Error: No se pudo procesar la cara'
+            #borrar foto del sistema
+        os.remove(file_path)
+        if iguales :
+            menu(request)
+        return JsonResponse({'mensaje': 'Imagen guardada exitosamente.'})
+    return JsonResponse({'error': 'Solicitud no válida.'})

@@ -13,4 +13,5 @@ urlpatterns = [
     path('menu/info', views.info, name='info'),
     path('webcam/', webcam_view, name='webcam'),
     path('rekognition/', views.rekognition_view, name='rekognition'),
+    path('guardar_imagen/', views.guardar_imagen, name='guardar_imagen'),
 ]
