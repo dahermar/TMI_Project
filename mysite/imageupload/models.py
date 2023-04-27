@@ -5,6 +5,12 @@ from django.db import models
 from rekognition_objects import (
     RekognitionFace, RekognitionCelebrity, RekognitionLabel,
     RekognitionModerationLabel, RekognitionText, show_bounding_boxes, show_polygons)
+from pprint import pprint
+import os
+from django.conf import settings
+
+
+#aqui el error TODO meter las clases
 #from googletrans import Translator
 from translate import Translator
 
@@ -30,7 +36,7 @@ class RekognitionImage:
         image = {'S3Object': {'Bucket': s3_object.bucket_name, 'Name': s3_object.key}}
         return cls(image, s3_object.key, rekognition_client)
     
-    classmethod
+    #@classmethod
     def detect_labels(self, max_labels):
         try:
             response = self.rekognition_client.detect_labels(
@@ -43,13 +49,8 @@ class RekognitionImage:
         else:
             return labels
     
-    @classmethod
+    #@classmethod
     def detect_faces(self):
-        """
-        Detects faces in the image.
-
-        :return: The list of faces found in the image.
-        """
         try:
             response = self.rekognition_client.detect_faces(
                 Image=self.image, Attributes=['ALL'])
@@ -61,7 +62,7 @@ class RekognitionImage:
         else:
             return faces
     
-    @classmethod
+    #@classmethod
     def compare_faces(self, target_image, similarity):
         """
         Compares faces in the image with the largest face in the target image.
@@ -151,16 +152,36 @@ class Image(models.Model):
         #return detected_animal, translation
         #print(translation)
         return translation
-    #TODO
+    
     def detect_face(self):
         # Initialize the Rekognition client
         rekognition_client = boto3.client('rekognition')
         # Detect labels in the image
-    
-        #image = RekognitionImage.from_file(self.image, rekognition_client)
-        image= RekognitionImage(self.image_cara,"cara",rekognition_client)
-        caras= image.detect_faces()
+
+        imagen = RekognitionImage.from_file(self.image, rekognition_client)
+        caras= imagen.detect_faces()
         print(caras)
+        print(f"Found {len(caras)} faces.")
+        for cara in caras:
+            pprint(cara.to_dict())
+        return caras
+
+    def compare_face(self):
+        # Initialize the Rekognition client
+        rekognition_client = boto3.client('rekognition')
+        # Detect labels in the image
+
+        #TODO hacer que compare con varias fotos
+        imagen = RekognitionImage.from_file(self.image, rekognition_client)
+        file_path = os.path.join(settings.MEDIA_ROOT, "cara_original.jpg")
+        imagen_original = RekognitionImage.from_file(file_path, rekognition_client)
+        caras= imagen.compare_faces(imagen_original,80)
+        if len(caras[0])>0:
+            print("Cara detectada")
+            return True
+        else:
+            print("Cara no detectada")
+            return False
 
 
 '''

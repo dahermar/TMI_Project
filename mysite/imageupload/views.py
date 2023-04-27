@@ -165,14 +165,25 @@ def image_upload(request):
 @csrf_exempt
 def guardar_imagen(request):
     if request.method == 'POST':
-        foto = request.POST.get('foto')
-        #print("f",foto) 
-        rekognition_client = boto3.client('rekognition')
-        imagen =RekognitionImage(image=foto,image_name="foto.jpg",rekognition_client=rekognition_client)
-        res=imagen.detect_faces()
-        imagen.compare_faces(res, res,80)
-        #imagen = Image(image=foto)
-        #imagen.detect_face()
-        #imagen.save()
+        foto = request.FILES.get('foto')
+        #Guardar foto y pasar url
+        images_dir = os.path.join(settings.MEDIA_ROOT)
+        if not os.path.exists(images_dir):
+            os.makedirs(images_dir)
+        
+        file_path = os.path.join(settings.MEDIA_ROOT, "cara.jpg")
+        with open(file_path, 'wb') as f:
+            f.write(foto.read())
+        try:
+            imagen =Image(image=file_path)
+            iguales = imagen.compare_face()
+            print(iguales)
+        except Exception as e:
+                logger.error(str(e))
+                error = 'Error: No se pudo procesar la cara'
+            #borrar foto del sistema
+        os.remove(file_path)
+        if iguales :
+            menu(request)
         return JsonResponse({'mensaje': 'Imagen guardada exitosamente.'})
     return JsonResponse({'error': 'Solicitud no válida.'})
