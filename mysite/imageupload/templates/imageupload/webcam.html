@@ -39,7 +39,7 @@
                 // Enviar la imagen al servidor
                 var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 var xhr = new XMLHttpRequest();
-                xhr.open('POST', '{% url "imageupload:guardar_imagen" %}');
+                xhr.open('POST', '{% url "imageupload:reconocimiento_facial" %}');
                 xhr.setRequestHeader('X-CSRFToken', csrftoken);
                 var formData = new FormData();
                 formData.append('foto', dataURLtoBlob(dataURL), 'foto.png');

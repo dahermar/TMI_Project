@@ -163,7 +163,7 @@ def image_upload(request):
 
 #TODO
 @csrf_exempt
-def guardar_imagen(request):
+def reconocimiento_facial(request):
     if request.method == 'POST':
         foto = request.FILES.get('foto')
         #Guardar foto y pasar url
