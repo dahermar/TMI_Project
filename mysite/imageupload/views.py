@@ -19,9 +19,19 @@ from .models import RekognitionImage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
+from .models import PollyAudio
 
+import tempfile
+from pydub import AudioSegment
+from pydub.playback import play
 
+import threading
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def play_audio(audio):
+    play(audio)
 
 def rekognition_view(request):
     if request.method == 'POST':
@@ -40,34 +50,38 @@ def rekognition_view(request):
             file_path = os.path.join(settings.MEDIA_ROOT, image.name)
             with open(file_path, 'wb') as f:
                 f.write(image.read())
-            # redirigir al usuario a una página de éxito
-            #return render(request, 'imageupload/info.html', {'image_path': file_path})
-            #rekognition_client = boto3.client('rekognition')
 
             try:
-                #image = {'Bytes': image_file.read()}
-                #print(image_file)
-                #print(image)
-                #image_name = image_file.name
-                #rekognition_image = RekognitionImage(image, image_name, rekognition_client)
-                #max_labels = 20
-                #labels = rekognition_image.detect_labels(max_labels)
                 imagen =Image(image=file_path)
                 animal = imagen.detect_animal()
-                #animal = type(image_file)
                 
-                #animal_es ="jirafa"
                 # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
 
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
-                results ={"animal": animal}
-                return render(request, 'imageupload/rekognition_results.html', results)
-            except Exception as e:
-                logger.error(str(e))
-                error = 'Error: No se pudo procesar la imagen'
-            # return render(request, 'rekognition_error.html', {'error': error})
+                audio = PollyAudio()
+                response = audio.transcript_text('Hola Mundo')
+                
+                if 'AudioStream' in response:
+                    audio_bytes = response['AudioStream'].read()
+                    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+                        tmp_file.write(audio_bytes)
+                        tmp_file.flush()
 
-            #return render(request, 'imageupload/rekognition_form.html')
+                        # Carga el archivo temporal en un objeto AudioSegment de pydub
+                        audio = AudioSegment.from_file(tmp_file.name, format='mp3')
+
+                    audio_thread = threading.Thread(target=play_audio, args=(audio,))
+                    audio_thread.start()
+
+                    results = {
+                        "animal": animal
+                    }
+                    return render(request, 'imageupload/rekognition_results.html', results)
+                else:
+                    raise Exception('Error al sintetizar el texto dado.')
+
+            except Exception as e:
+                logger.error('Error: No se pudo procesar la imagen. ' + str(e))
         else:
             form = ImageUploadForm()
         return render(request, 'imageupload/menu.html', {'form': form})

@@ -9,10 +9,12 @@ from pprint import pprint
 import os
 from django.conf import settings
 
-
 #aqui el error TODO meter las clases
 #from googletrans import Translator
 from translate import Translator
+
+from django.http import StreamingHttpResponse
+
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +101,17 @@ class Animal(models.Model):
 
     def __str__(self):
         return self.name
+
+class PollyAudio(models.Model):
+
+    polly = boto3.client('polly')
+    
+    def transcript_text(self, text):
+        if self.polly is not None:
+            response = self.polly.synthesize_speech(Text=text, OutputFormat='mp3', VoiceId='Lucia', LanguageCode='es-ES')
+            return response
+        else:
+            raise Exception('Cliente de Amazon no inicializado.')
 
 
 class Image(models.Model):
