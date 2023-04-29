@@ -8,7 +8,6 @@ from django.shortcuts import render
 from .forms import ImageUploadForm
 from django.conf import settings
 import logging
-import boto3
 from botocore.exceptions import ClientError
 from pprint import pprint
 from googletrans import Translator
@@ -179,6 +178,7 @@ def image_upload(request):
 @csrf_exempt
 def reconocimiento_facial(request):
     if request.method == 'POST':
+
         foto = request.FILES.get('foto')
         #Guardar foto y pasar url
         images_dir = os.path.join(settings.MEDIA_ROOT)
@@ -198,6 +198,7 @@ def reconocimiento_facial(request):
             #borrar foto del sistema
         os.remove(file_path)
         if iguales :
-            menu(request)
-        return JsonResponse({'mensaje': 'Imagen guardada exitosamente.'})
-    return JsonResponse({'error': 'Solicitud no válida.'})
+            return JsonResponse({'valido': True})
+        
+        return JsonResponse({'valido': False})
+    return JsonResponse({'valido': False})
