@@ -9,7 +9,6 @@ from pprint import pprint
 import os
 from django.conf import settings
 
-
 #aqui el error TODO meter las clases
 #from googletrans import Translator
 from translate import Translator
@@ -105,20 +104,14 @@ class Animal(models.Model):
 
 class PollyAudio(models.Model):
 
-    polly = None
-
-    def _init(self):
-        self.polly = boto3.client('polly')
+    polly = boto3.client('polly')
     
     def transcript_text(self, text):
         if self.polly is not None:
-            response = self.polly.synthesize_speech(Text=text, OutputFormat='mp3', VoiceId='Joanna')
-            audio_content = response['AudioStream'].read()
-            response = StreamingHttpResponse(audio_content, content_type='audio/mpeg')
-            response['Content-Disposition'] = 'attachment; filename="polly.mp3"'
+            response = self.polly.synthesize_speech(Text=text, OutputFormat='mp3', VoiceId='Lucia', LanguageCode='es-ES')
             return response
-        else :
-            logger.info("Error getting the audio from the transcript.")
+        else:
+            raise Exception('Cliente de Amazon no inicializado.')
 
 
 class Image(models.Model):

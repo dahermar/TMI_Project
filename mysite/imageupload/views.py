@@ -19,9 +19,19 @@ from .models import RekognitionImage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
+from .models import PollyAudio
 
+import tempfile
+from pydub import AudioSegment
+from pydub.playback import play
 
+import threading
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def play_audio(audio):
+    play(audio)
 
 def rekognition_view(request):
     if request.method == 'POST':
@@ -48,20 +58,30 @@ def rekognition_view(request):
                 # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
 
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
-
                 audio = PollyAudio()
+                response = audio.transcript_text('Hola Mundo')
+                
+                if 'AudioStream' in response:
+                    audio_bytes = response['AudioStream'].read()
+                    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+                        tmp_file.write(audio_bytes)
+                        tmp_file.flush()
 
-                streaming = audio.transcript_text('Hola Mundo')
+                        # Carga el archivo temporal en un objeto AudioSegment de pydub
+                        audio = AudioSegment.from_file(tmp_file.name, format='mp3')
 
+                    audio_thread = threading.Thread(target=play_audio, args=(audio,))
+                    audio_thread.start()
 
-                results = {
-                    "animal": animal,
-                    "streaming": streaming
-                }
-                return render(request, 'imageupload/rekognition_results.html', results)
+                    results = {
+                        "animal": animal
+                    }
+                    return render(request, 'imageupload/rekognition_results.html', results)
+                else:
+                    raise Exception('Error al sintetizar el texto dado.')
+
             except Exception as e:
-                logger.error(str(e))
-                error = 'Error: No se pudo procesar la imagen'
+                logger.error('Error: No se pudo procesar la imagen. ' + str(e))
         else:
             form = ImageUploadForm()
         return render(request, 'imageupload/menu.html', {'form': form})
