@@ -4,7 +4,6 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .models import Image
 from django.shortcuts import render
-from django.shortcuts import render
 from .forms import ImageUploadForm
 from django.conf import settings
 import logging
