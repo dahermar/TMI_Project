@@ -1,5 +1,12 @@
 {% extends "imageupload/base.html" %}
-
+{% block title %}Recopets - Información{% endblock %}
+{% block header %}
+<div class="button-container">
+    <a href="javascript:history.back()" class="link-button link-button-goBack"><button class="button">Volver atrás</button></a>
+</div>
+<!--<a href="javascript:history.back()" class="btn btn-primary">Volver atrás</a>-->
+<h1 class="title">Recopets</h1>
+{% endblock %}
 {% block content %}
 <h1>Resultados de la detección de etiquetas</h1>
 <div class="row">
