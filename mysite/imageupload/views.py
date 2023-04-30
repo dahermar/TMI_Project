@@ -25,6 +25,11 @@ from pydub.playback import play
 
 import threading
 
+from .controllers.usuarioController import UsuarioController
+
+usuarioController = UsuarioController()
+datos_usuarios = usuarioController.cargar_usuarios()
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

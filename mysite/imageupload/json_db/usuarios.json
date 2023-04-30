@@ -1,0 +1,11 @@
+{
+    "next_id": 2,
+    "usuarios": [
+        {
+            "id": 1,
+            "nombre": "David Bugoi",
+            "foto": "images/cara_original.jpg"
+        }
+        
+    ]
+}
