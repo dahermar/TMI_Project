@@ -4,7 +4,7 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .models import Image
 from django.shortcuts import render
-from .forms import ImageUploadForm
+from .forms import ImageUploadForm, RegistroForm
 from django.conf import settings
 import logging
 from botocore.exceptions import ClientError
@@ -18,6 +18,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
 from .models import PollyAudio
+from django.contrib import messages
+from django.shortcuts import redirect
 
 import tempfile
 from pydub import AudioSegment
@@ -132,6 +134,37 @@ def index(request):
         'latest_question_list': latest_question_list,
     }
     return render(request, 'imageupload/index.html', context)
+
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Aquí se procesa la información del formulario
+            nombre = form.cleaned_data['nombre']
+            logger.info(nombre)
+            foto = form.cleaned_data['foto']
+            fileName, fileExtension = os.path.splitext(foto.name)
+            # Procesar la foto y guardarla en algún directorio
+            if foto:
+                filename = nombre.replace(' ', '_').lower() + fileExtension
+                logger.info(filename)
+                logger.info(foto.name)
+                with open(os.path.join(settings.MEDIA_ROOT + '/rostros/', filename), 'wb+') as destination:
+                    for chunk in foto.chunks():
+                        destination.write(chunk)
+                foto_path = os.path.join(settings.MEDIA_URL + 'rostros/', filename)
+                usuarioController.agregar_usuario(nombre=nombre, foto_path=foto_path)
+                messages.success(request, '¡Registro exitoso!')
+                return redirect('imageupload:index')
+            # Crear el usuario con los datos y la ruta de la foto
+            # Redirigir al usuario a alguna página de confirmación o a la página de inicio de sesión
+            else:
+                messages.error(request, 'Por favor corrige los errores del formulario.')
+        else:
+            messages.error(request, 'Por favor corrige los errores del formulario.')
+    else:
+        form = RegistroForm()
+    return render(request, 'imageupload/registro.html', {'form': form})
 
 def menu(request):
     form = ImageUploadForm()

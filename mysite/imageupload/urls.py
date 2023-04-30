@@ -8,6 +8,7 @@ urlpatterns = [
     #path('', views.ImageUploadView.as_view(), name='upload'),
     path('upload/', views.image_upload, name='upload'),
     path('index', views.index, name='index'),
+    path('registro/', views.registro, name='registro'),
     path('menu/', views.menu, name='menu'),
     path('menu/historial', views.historial, name='historial'),
     path('menu/info', views.info, name='info'),
