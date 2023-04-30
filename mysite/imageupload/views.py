@@ -65,7 +65,11 @@ def rekognition_view(request):
             try:
                 imagen =Image(image=file_path)
                 animal, wikiTexto = imagen.detect_animal()
-               
+                
+                results = {
+                    "animal": animal,
+                    "wikiTexto": wikiTexto
+                }
                 
                 usuario_id = request.session['id']
 
@@ -75,25 +79,31 @@ def rekognition_view(request):
 
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
                 
-                audio = PollyAudio()
-                response = audio.transcript_text(wikiTexto)
-                
-                if 'AudioStream' in response:
-                    with closing(response["AudioStream"]) as stream:
-                        output = os.path.join(gettempdir(), "speech.mp3")
-                        with open(output, "wb") as file:
-                            file.write(stream.read())
+                try:
+                    audio = PollyAudio()
+                    response = audio.transcript_text(wikiTexto)
                     
-                    print("Ruta: ", output)
-                    playsound.playsound(output, False)
-                    
-                    results = {
-                        "animal": animal,
-                        "wikiTexto": wikiTexto
-                    }
+                    audio_id = request.session['audio_id']
+                    request.session['audio_id'] = audio_id + 1
+
+                    audioName = "audio" + str(audio_id) + ".mp3"
+
+                    if 'AudioStream' in response:
+                        with closing(response["AudioStream"]) as stream:
+                            output = os.path.join(gettempdir(), audioName)
+                            with open(output, "wb") as file:
+                                file.write(stream.read())
+                        
+                        print("Ruta: ", output)
+                        playsound.playsound(output, False)
+                        
+                        return render(request, 'imageupload/rekognition_results.html', results)
+                    else:
+                        raise Exception('Error al sintetizar el texto dado.')
+                except Exception as e:
+                    print('Error al sintetizar el texto dado.')
+                    print(e)
                     return render(request, 'imageupload/rekognition_results.html', results)
-                else:
-                    raise Exception('Error al sintetizar el texto dado.')
                 
             except Exception as e:
                 logger.error('Error: ' + str(e))
@@ -250,6 +260,7 @@ def reconocimiento_facial(request):
             iguales, usuario = imagen.compare_face()
             print(iguales)
         except Exception as e:
+                iguales = False
                 logger.error(str(e))
                 error = 'Error: No se pudo procesar la cara'
             #borrar foto del sistema
@@ -258,6 +269,7 @@ def reconocimiento_facial(request):
             request.session['id'] = usuario["id"]  
             request.session['nombre'] = usuario["nombre"]  
             request.session['foto'] = usuario["foto"]  
+            request.session['audio_id'] = 0
             return JsonResponse({'valido': True})
         
         return JsonResponse({'valido': False})

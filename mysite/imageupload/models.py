@@ -171,8 +171,7 @@ class Image(models.Model):
             wikiTexto = re.sub('\[[0-9]+\]','',wikiTexto.split('\n')[0])
             
         except:
-            wikiTexto = "No se ha encontrado información sobre este animal"
-        print(wikiTexto)
+            wikiTexto = "No se ha encontrado una pagina de wikipedia para este animal"
         
         return translation, wikiTexto
     
@@ -211,9 +210,9 @@ class Image(models.Model):
                 print("Cara detectada")
                 #Asignar usuario para historial
                 return True, usuario
-            else:
-                print("Cara no detectada")
-                return False, None
+        print("Cara no detectada")
+        return False, None
+                
             
 
         
