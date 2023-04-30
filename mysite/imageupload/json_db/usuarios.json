@@ -1,5 +1,5 @@
 {
-    "next_id": 2,
+    "next_id": 3,
     "usuarios": [
         {
             "id": 1,
@@ -11,6 +11,5 @@
             "nombre": "Aldair Maldonado",
             "foto": "rostros/cara_aldair.jpg"
         }
-        
     ]
 }
