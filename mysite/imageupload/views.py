@@ -152,7 +152,7 @@ def registro(request):
                 with open(os.path.join(settings.MEDIA_ROOT + '/rostros/', filename), 'wb+') as destination:
                     for chunk in foto.chunks():
                         destination.write(chunk)
-                foto_path = os.path.join(settings.MEDIA_URL + 'rostros/', filename)
+                foto_path = 'rostros/' + filename
                 usuarioController.agregar_usuario(nombre=nombre, foto_path=foto_path)
                 messages.success(request, '¡Registro exitoso!')
                 return redirect('imageupload:index')
