@@ -4,7 +4,12 @@
         {
             "id": 1,
             "nombre": "David Bugoi",
-            "foto": "images/rostros/cara_original.jpg"
+            "foto": "rostros/cara_david.jpg"
+        },
+        {
+            "id": 2,
+            "nombre": "Aldair Maldonado",
+            "foto": "rostros/cara_aldair.jpg"
         }
         
     ]
