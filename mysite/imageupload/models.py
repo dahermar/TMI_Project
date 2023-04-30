@@ -13,8 +13,7 @@ from django.conf import settings
 #from googletrans import Translator
 from translate import Translator
 
-from django.http import StreamingHttpResponse
-
+from .controllers.usuarioController import UsuarioController
 
 logger = logging.getLogger(__name__)
 
@@ -186,14 +185,27 @@ class Image(models.Model):
 
         #TODO hacer que compare con varias fotos
         imagen = RekognitionImage.from_file(self.image, rekognition_client)
-        file_path = os.path.join(settings.MEDIA_ROOT, "cara_original.jpg")
-        imagen_original = RekognitionImage.from_file(file_path, rekognition_client)
-        caras= imagen.compare_faces(imagen_original,80)
-        if len(caras[0])>0:
-            print("Cara detectada")
-            return True
-        else:
-            print("Cara no detectada")
-            return False
+        file_path = os.path.join(settings.MEDIA_ROOT, "rostros/cara_original.jpg")
+        
+
+        usuarioController = UsuarioController()
+        datos_usuarios = usuarioController.cargar_usuarios()
+        for usuario in datos_usuarios:
+            file_path = os.path.join(settings.MEDIA_ROOT, usuario["foto"])
+            print (file_path)
+            
+            imagen_original = RekognitionImage.from_file(file_path, rekognition_client)
+            caras= imagen.compare_faces(imagen_original,80)
+            if len(caras[0])>0:
+                print("Cara detectada")
+                #Asignar usuario para historial
+                return True
+            else:
+                print("Cara no detectada")
+                return False
+            
+
+        
+       
 
 
