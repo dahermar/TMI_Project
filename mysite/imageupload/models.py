@@ -12,6 +12,8 @@ from django.conf import settings
 #aqui el error TODO meter las clases
 #from googletrans import Translator
 from translate import Translator
+import wikipedia
+import re
 
 from django.http import StreamingHttpResponse
 
@@ -163,8 +165,17 @@ class Image(models.Model):
         else:
             translation = None
         #return detected_animal, translation
-        #print(translation)
-        return translation
+        
+        try:
+            wikipedia.set_lang("es")
+            wikiTexto = wikipedia.summary(translation, auto_suggest = False)
+            wikiTexto = re.sub('\[[0-9]+\]','',wikiTexto.split('\n')[0])
+            
+        except:
+            wikiTexto = "No se ha encontrado información sobre este animal"
+        print(wikiTexto)
+        
+        return translation, wikiTexto
     
     def detect_face(self):
         # Initialize the Rekognition client

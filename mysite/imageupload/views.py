@@ -9,7 +9,6 @@ from django.conf import settings
 import logging
 from botocore.exceptions import ClientError
 from pprint import pprint
-from googletrans import Translator
 from rekognition_objects import (
     RekognitionFace, RekognitionCelebrity, RekognitionLabel,
     RekognitionModerationLabel, RekognitionText, show_bounding_boxes, show_polygons)
@@ -39,6 +38,7 @@ def play_audio(audio):
     play(audio)
 
 def rekognition_view(request):
+    print(1)
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
         
@@ -58,14 +58,22 @@ def rekognition_view(request):
 
             try:
                 imagen =Image(image=file_path)
-                animal = imagen.detect_animal()
+                animal, wikiTexto = imagen.detect_animal()
+               
                 
                 # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
 
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
+                
                 audio = PollyAudio()
                 response = audio.transcript_text('Hola Mundo')
+                results = {
+                    "animal": animal,
+                    "wikiTexto": wikiTexto
+                }
+                return render(request, 'imageupload/rekognition_results.html', results)
                 
+                """
                 if 'AudioStream' in response:
                     audio_bytes = response['AudioStream'].read()
                     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
@@ -84,9 +92,9 @@ def rekognition_view(request):
                     return render(request, 'imageupload/rekognition_results.html', results)
                 else:
                     raise Exception('Error al sintetizar el texto dado.')
-
+                """
             except Exception as e:
-                logger.error('Error: No se pudo procesar la imagen. ' + str(e))
+                logger.error('Error: ' + str(e))
         else:
             form = ImageUploadForm()
         return render(request, 'imageupload/menu.html', {'form': form})
