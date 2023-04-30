@@ -1,4 +1,5 @@
 import os
+import sys
 from django.conf import settings
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
@@ -20,11 +21,16 @@ from .models import PollyAudio
 from django.contrib import messages
 from django.shortcuts import redirect
 
+
 import tempfile
 from pydub import AudioSegment
 from pydub.playback import play
+from contextlib import closing
+from tempfile import gettempdir
 
 import threading
+
+import playsound
 
 from .controllers.usuarioController import UsuarioController
 
@@ -37,8 +43,8 @@ logger = logging.getLogger(__name__)
 def play_audio(audio):
     play(audio)
 
+
 def rekognition_view(request):
-    print(1)
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
         
@@ -66,33 +72,25 @@ def rekognition_view(request):
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
                 
                 audio = PollyAudio()
-                response = audio.transcript_text('Hola Mundo')
-                results = {
-                    "animal": animal,
-                    "wikiTexto": wikiTexto
-                }
-                return render(request, 'imageupload/rekognition_results.html', results)
+                response = audio.transcript_text(wikiTexto)
                 
-                """
                 if 'AudioStream' in response:
-                    audio_bytes = response['AudioStream'].read()
-                    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-                        tmp_file.write(audio_bytes)
-                        tmp_file.flush()
-
-                        # Carga el archivo temporal en un objeto AudioSegment de pydub
-                        audio = AudioSegment.from_file(tmp_file.name, format='mp3')
-
-                    audio_thread = threading.Thread(target=play_audio, args=(audio,))
-                    audio_thread.start()
-
+                    with closing(response["AudioStream"]) as stream:
+                        output = os.path.join(gettempdir(), "speech.mp3")
+                        with open(output, "wb") as file:
+                            file.write(stream.read())
+                    
+                    print("Ruta: ", output)
+                    playsound.playsound(output, False)
+                    
                     results = {
-                        "animal": animal
+                        "animal": animal,
+                        "wikiTexto": wikiTexto
                     }
                     return render(request, 'imageupload/rekognition_results.html', results)
                 else:
                     raise Exception('Error al sintetizar el texto dado.')
-                """
+                
             except Exception as e:
                 logger.error('Error: ' + str(e))
         else:
