@@ -1,5 +1,9 @@
 {% extends "imageupload/base.html" %}
 {% block title %}Recopets - Menú{% endblock %}
+{% block header %}
+    <h1 class="title">Recopets</h1>
+    <h2 class="title">Bienvenido {{ nombre }}</h2>
+{% endblock%}
 {% block content %}
 <form method="post" enctype="multipart/form-data" action="{% url 'imageupload:rekognition' %}">
     {% csrf_token %}

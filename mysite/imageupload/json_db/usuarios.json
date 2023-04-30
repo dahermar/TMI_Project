@@ -1,11 +1,17 @@
 {
-    "next_id": 2,
+    "next_id": 3,
     "usuarios": [
         {
             "id": 1,
             "nombre": "David Bugoi",
-            "foto": "images/cara_original.jpg"
+            "foto": "rostros/cara_david.jpg",
+            "historial":[]
+        },
+        {
+            "id": 2,
+            "nombre": "Aldair Maldonado",
+            "foto": "rostros/cara_aldair.jpg",
+            "historial":[]
         }
-        
     ]
 }
