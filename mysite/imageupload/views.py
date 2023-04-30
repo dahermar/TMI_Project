@@ -60,6 +60,10 @@ def rekognition_view(request):
                 imagen =Image(image=file_path)
                 animal = imagen.detect_animal()
                 
+                usuario_id = request.session['id']
+
+                usuarioController.agregar_registro(usuario_id=usuario_id, nombre=animal)
+                
                 # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
 
                 # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
@@ -168,12 +172,22 @@ def registro(request):
 
 def menu(request):
     form = ImageUploadForm()
-    context = {'form': form}
+    nombre = request.session['nombre']
+    context = {
+        'form': form,
+        "nombre": nombre
+    }
     return render(request, 'imageupload/menu.html', context)
 
 
 def historial(request):
-    return render(request, 'imageupload/historial.html')
+    usuario_id = request.session['id']
+    registros = usuarioController.get_registros_por_id(usuario_id=usuario_id)
+
+    context = {
+        "registros":registros
+    }
+    return render(request, 'imageupload/historial.html', context)
 
 def info(request):
     return render(request,'imageupload/info.html')
@@ -227,7 +241,7 @@ def reconocimiento_facial(request):
             f.write(foto.read())
         try:
             imagen =Image(image=file_path)
-            iguales = imagen.compare_face()
+            iguales, usuario = imagen.compare_face()
             print(iguales)
         except Exception as e:
                 logger.error(str(e))
@@ -235,6 +249,9 @@ def reconocimiento_facial(request):
             #borrar foto del sistema
         os.remove(file_path)
         if iguales :
+            request.session['id'] = usuario["id"]  
+            request.session['nombre'] = usuario["nombre"]  
+            request.session['foto'] = usuario["foto"]  
             return JsonResponse({'valido': True})
         
         return JsonResponse({'valido': False})

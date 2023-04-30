@@ -199,10 +199,10 @@ class Image(models.Model):
             if len(caras[0])>0:
                 print("Cara detectada")
                 #Asignar usuario para historial
-                return True
+                return True, usuario
             else:
                 print("Cara no detectada")
-                return False
+                return False, None
             
 
         
