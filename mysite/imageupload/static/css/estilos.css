@@ -39,5 +39,18 @@ body {
 
 .link-button {
 	text-decoration: none;
-  }
+}
+
+.goBackButton {
+	display:inline-block;
+}
+
+.button-container {
+	text-align: left;
+}
+
+.imagen-little {
+	width: 150px;
+	height: 150px;
+}
   

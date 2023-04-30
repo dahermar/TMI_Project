@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Webcam en tiempo real</title>
+    <style>
+        #video {
+            width: 30%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam en tiempo real</h1>
+    <video id="video" autoplay></video>
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                var video = document.querySelector('#video');
+                video.srcObject = stream;
+            })
+            .catch(function(err) {
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
