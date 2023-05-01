@@ -40,17 +40,50 @@ body {
 .link-button {
 	text-decoration: none;
 }
-
+  
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 20px;
+}
+  
 .goBackButton {
-	display:inline-block;
+	display: inline-block;
+}
+  
+.logout-button {
+	display: inline-block;
+	text-align: right;
 }
 
-.button-container {
-	text-align: left;
+.button-container-left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.button-container-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.button-container-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
 }
 
 .imagen-little {
 	width: 150px;
 	height: 150px;
 }
-  
+
+#video {
+	width: 30%;
+	height: auto;
+}
