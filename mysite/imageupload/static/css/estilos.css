@@ -82,4 +82,8 @@ body {
 	width: 150px;
 	height: 150px;
 }
-  
+
+#video {
+	width: 30%;
+	height: auto;
+}
