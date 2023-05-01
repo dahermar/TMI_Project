@@ -13,6 +13,7 @@ urlpatterns = [
     path('menu/historial', views.historial, name='historial'),
     path('menu/info', views.info, name='info'),
     path('webcam/', webcam_view, name='webcam'),
+    path('logout/', views.logout_view, name='logout'),
     path('rekognition/', views.rekognition_view, name='rekognition'),
     path('reconocimiento_facial/', views.reconocimiento_facial, name='reconocimiento_facial')
 ]

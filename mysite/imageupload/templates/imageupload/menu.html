@@ -1,6 +1,15 @@
 {% extends "imageupload/base.html" %}
 {% block title %}Recopets - Menú{% endblock %}
 {% block header %}
+    <div class="button-container-right">
+        <a href="{% url 'imageupload:logout' %}" class="link-button logout-button">
+            <button class="button">
+                <i class="fa-solid fa-sign-out"></i>
+                Cerrar sesión
+            </button>
+        </a>
+    </div>
+
     <h1 class="title">Recopets</h1>
     <h2 class="title">Bienvenido {{ nombre }}</h2>
 {% endblock%}

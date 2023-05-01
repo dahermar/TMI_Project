@@ -33,6 +33,8 @@ import threading
 import playsound
 
 from .controllers.usuarioController import UsuarioController
+from django.contrib.auth import logout
+from django.views.decorators.cache import never_cache
 
 usuarioController = UsuarioController()
 datos_usuarios = usuarioController.cargar_usuarios()
@@ -43,7 +45,7 @@ logger = logging.getLogger(__name__)
 def play_audio(audio):
     play(audio)
 
-
+@never_cache
 def rekognition_view(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
@@ -110,43 +112,6 @@ def rekognition_view(request):
         else:
             form = ImageUploadForm()
         return render(request, 'imageupload/menu.html', {'form': form})
-    """
-    if request.method == 'POST':
-        image_file = request.FILES.get('image')
-        image_str= "./imageupload/images/" + str(image_file)
-        ruta_relativa = image_file.name
-        ruta_absoluta = os.path.abspath(ruta_relativa)
-        print(ruta_absoluta )
-        print("Esto",image_str)
-        print("Tipo",type(image_str))
-        #rekognition_client = boto3.client('rekognition')
-
-        try:
-            #image = {'Bytes': image_file.read()}
-            #print(image_file)
-            #print(image)
-            #image_name = image_file.name
-            #rekognition_image = RekognitionImage(image, image_name, rekognition_client)
-            #max_labels = 20
-            #labels = rekognition_image.detect_labels(max_labels)
-            print(os.getcwd())
-            imagen =Image(image=image_str)
-            animal = imagen.detect_animal()
-            #animal = type(image_file)
-            
-            #animal_es ="jirafa"
-            # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
-
-            # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
-            results ={"animal": animal}
-            return render(request, 'imageupload/rekognition_results.html', results)
-        except Exception as e:
-            logger.error(str(e))
-            error = 'Error: No se pudo procesar la imagen'
-           # return render(request, 'rekognition_error.html', {'error': error})
-
-    return render(request, 'imageupload/rekognition_form.html')
-"""
 
 def index(request):
     latest_question_list = [1, 2, 3, 4, 5, 6, 7]
@@ -186,6 +151,7 @@ def registro(request):
         form = RegistroForm()
     return render(request, 'imageupload/registro.html', {'form': form})
 
+@never_cache
 def menu(request):
     form = ImageUploadForm()
     nombre = request.session['nombre']
@@ -195,7 +161,7 @@ def menu(request):
     }
     return render(request, 'imageupload/menu.html', context)
 
-
+@never_cache
 def historial(request):
     usuario_id = request.session['id']
     registros = usuarioController.get_registros_por_id(usuario_id=usuario_id)
@@ -207,6 +173,11 @@ def historial(request):
 
 def info(request):
     return render(request,'imageupload/info.html')
+
+@never_cache
+def logout_view(request):
+    logout(request)
+    return redirect('imageupload:index')
 
 def webcam_view(request):
     csrf_token =get_token(request)

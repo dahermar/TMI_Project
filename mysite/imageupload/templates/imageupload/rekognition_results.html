@@ -8,8 +8,13 @@
             Volver atrás
         </button>
     </a>
+    <a href="{% url 'imageupload:logout' %}" class="link-button logout-button">
+        <button class="button">
+        <i class="fa-solid fa-sign-out"></i>
+        Cerrar sesión
+        </button>
+    </a>
 </div>
-<!--<a href="javascript:history.back()" class="btn btn-primary">Volver atrás</a>-->
 <h1 class="title">Recopets</h1>
 {% endblock %}
 {% block content %}
