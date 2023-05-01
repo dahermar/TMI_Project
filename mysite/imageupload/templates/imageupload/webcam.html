@@ -42,7 +42,7 @@
                 //xhr.open('POST', '{% url "imageupload:reconocimiento_facial" %}');
                 //xhr.setRequestHeader('X-CSRFToken', csrftoken);
                 var formData = new FormData();
-                formData.append('foto', 'p');
+                formData.append('foto', dataURLtoBlob(dataURL), 'foto.png');
                 //xhr.send(formData);
                 var url = '{% url "imageupload:reconocimiento_facial" %}';
                 fetch(url, {
