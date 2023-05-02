@@ -19,18 +19,23 @@
 {% endblock %}
 {% block content %}
 <h1>Resultados de la detección de etiquetas</h1>
+
 <div class="row">
+    
     <div class="col-md-6">
-        <img src="{{ image_url }}" class="img-fluid" alt="{{ image_name }}">
+        <img src = {{ imagen }} alt="Imagen de bienvenida">
     </div>
+      
     <div class="col-md-6">
         {% if animal %}
         <h2>Animal detectado:</h2>
-        <p>{{ animal }}</p>
+        <h3>{{ animal }}</h3>
         <p>{{ wikiTexto }}</p>
+        <p>{{ wikiUrl|safe}}</p>
         {% else %}
         <h2>No se detectó ningún animal en la imagen.</h2>
         {% endif %}
     </div>
+    
 </div>
 {% endblock %}

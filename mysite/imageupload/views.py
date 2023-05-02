@@ -42,6 +42,7 @@ datos_usuarios = usuarioController.cargar_usuarios()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def play_audio(audio):
     play(audio)
 
@@ -66,11 +67,15 @@ def rekognition_view(request):
 
             try:
                 imagen =Image(image=file_path)
-                animal, wikiTexto = imagen.detect_animal()
+                animal, wikiTexto, wikiUrl = imagen.detect_animal()
                 
+                if wikiUrl != "":
+                    wikiUrl = "Para mas información consultar: <a href=\"" + wikiUrl + "\" target=\"_blank\">" + wikiUrl + "</a>" 
                 results = {
                     "animal": animal,
-                    "wikiTexto": wikiTexto
+                    "wikiTexto": wikiTexto,
+                    "imagen": "/static/images/" + image.name,
+                    "wikiUrl": wikiUrl
                 }
                 
                 usuario_id = request.session['id']
@@ -99,6 +104,8 @@ def rekognition_view(request):
                         print("Ruta: ", output)
                         playsound.playsound(output, False)
                         
+                        print("RUTA ABSOLUTA:", request.build_absolute_uri())
+
                         return render(request, 'imageupload/rekognition_results.html', results)
                     else:
                         raise Exception('Error al sintetizar el texto dado.')
@@ -239,8 +246,9 @@ def reconocimiento_facial(request):
         if iguales :
             request.session['id'] = usuario["id"]  
             request.session['nombre'] = usuario["nombre"]  
-            request.session['foto'] = usuario["foto"]  
-            request.session['audio_id'] = 0
+            request.session['foto'] = usuario["foto"]
+            if 'audio_id' not in request.session.keys():
+                request.session['audio_id'] = 0 
             return JsonResponse({'valido': True})
         
         return JsonResponse({'valido': False})

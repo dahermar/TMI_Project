@@ -160,7 +160,7 @@ class Image(models.Model):
         if detected_animal:
             translator = Translator(to_lang="es")
             #translation = translator.translate("CHICKEN", dest='es').text
-            translation = translator.translate(detected_animal)   
+            translation = translator.translate(detected_animal).replace("el ", "").replace("la ", "").replace("los", "".replace("las", "")).capitalize()
         else:
             translation = None
         #return detected_animal, translation
@@ -169,11 +169,14 @@ class Image(models.Model):
             wikipedia.set_lang("es")
             wikiTexto = wikipedia.summary(translation, auto_suggest = False)
             wikiTexto = re.sub('\[[0-9]+\]','',wikiTexto.split('\n')[0])
+
+            wikiUrl = wikipedia.page(translation, auto_suggest = False).url
             
         except:
             wikiTexto = "No se ha encontrado una pagina de wikipedia para este animal"
+            wikiUrl = ""
         
-        return translation, wikiTexto
+        return translation, wikiTexto, wikiUrl
     
     def detect_face(self):
         # Initialize the Rekognition client
