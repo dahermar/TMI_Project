@@ -1,15 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <title>Recopets - Inicio</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
-  </head>
-  <body>    
-    
-    <h1 class="title">Recopets</h1>
-    
-    <a href="{% url 'imageupload:menu' %}">Ir al menú</a>
-  </body>
-</html>
+{% extends "imageupload/base.html" %}
+{% block title %}Recopets - Inicio{% endblock %}
+{% block content %}
+<img class="imagen-little" src="../static/images/pug_logo.jpeg">
+<a href="{% url 'imageupload:webcam' %}" class="link-button"><button class="button">Iniciar sesión</button></a>
+<a href="{% url 'imageupload:registro' %}" class="link-button"><button class="button">Registrarse</button></a>
+{% endblock %}

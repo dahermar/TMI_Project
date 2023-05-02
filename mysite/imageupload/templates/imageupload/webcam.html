@@ -1,27 +1,100 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Webcam en tiempo real</title>
-    <style>
-        #video {
-            width: 30%;
-            height: auto;
-        }
-    </style>
-</head>
-<body>
-    <h1>Webcam en tiempo real</h1>
-    <video id="video" autoplay></video>
-    <script>
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                var video = document.querySelector('#video');
-                video.srcObject = stream;
+{% extends "imageupload/base.html" %}
+{% block title %}Recopets - Webcam en tiempo real{% endblock %}
+{% block header %}
+<div class="button-container-left">
+    <a href="javascript:history.back()" class="link-button">
+        <button class="button goBackButton">
+            <i class="fa-solid fa-chevron-left"></i>
+            Volver atrás
+        </button>
+    </a>
+</div>
+<h1 class="title">Recopets</h1>
+{% endblock %}
+{% block content %}
+<h1>Webcam en tiempo real</h1>
+<p>
+    A continuación, le tomaremos una foto de su rostro para identificarlo.
+    Cuando este preparado, pulse el botón <i><b>Escanear rostro</b></i>
+</p>
+<video id="video" autoplay></video>
+<button id="boton-captura" class="button">Escanear rostro</button>
+<canvas id="canvas" style="display:none;"></canvas>
+<p>{% csrf_token %}</p> 
+<script>
+    var video = document.querySelector('#video');
+    var canvas = document.querySelector('#canvas');
+    var botonCaptura = document.querySelector('#boton-captura');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            video.srcObject = stream;
+        })
+        .catch(function(err) {
+            console.error(err);
+        });
+
+        botonCaptura.addEventListener('click', function() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            var dataURL = canvas.toDataURL('image/png');
+            console.log(dataURL);
+            //Aquí puedes hacer algo con la foto, por ejemplo enviarla al servidor o mostrarla en una imagen
+            // Enviar la imagen al servidor
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            //var xhr = new XMLHttpRequest();
+            //xhr.open('POST', '{% url "imageupload:reconocimiento_facial" %}');
+            //xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            var formData = new FormData();
+            formData.append('foto', dataURLtoBlob(dataURL), 'foto.png');
+            //xhr.send(formData);
+            var url = '{% url "imageupload:reconocimiento_facial" %}';
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                body: formData
             })
-            .catch(function(err) {
-                console.error(err);
+            .then(response => {
+                if (response.ok) {
+                    // Respuesta satisfactoria del servidor
+                    return response.json();
+                } else {
+                    // Error al procesar la petición
+                    throw new Error('Error al procesar la petición');
+                }
+            })
+            .then(data => {
+                // Callback de la respuesta del servidor
+                console.log(data);
+                var valido = data.valido;
+                if (valido) {
+                    // Redirigir al usuario a la página 'menu'
+                    window.location.href = '{% url "imageupload:menu" %}';
+                }
+                else {
+                    window.alert('Error. Usuario no identificado. Inténtelo otra vez');
+                }
+            })
+            .catch(error => {
+                // Callback del error
+                console.error(error);
             });
-    </script>
-</body>
-</html>
+        });
+
+        function dataURLtoBlob(dataURL) {
+            var parts = dataURL.split(';base64,');
+            var contentType = parts[0].split(':')[1];
+            var raw = window.atob(parts[1]);
+            var rawLength = raw.length;
+            var uInt8Array = new Uint8Array(rawLength);
+            for (var i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            return new Blob([uInt8Array], { type: contentType });
+        }
+
+</script>
+{% endblock %}

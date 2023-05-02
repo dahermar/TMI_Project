@@ -1,0 +1,41 @@
+{% extends "imageupload/base.html" %}
+{% block title %}Recopets - Información{% endblock %}
+{% block header %}
+<div class="button-container">
+    <a href="javascript:history.back()" class="link-button">
+        <button class="button goBackButton">
+            <i class="fa-solid fa-chevron-left"></i>
+            Volver atrás
+        </button>
+    </a>
+    <a href="{% url 'imageupload:logout' %}" class="link-button logout-button">
+        <button class="button">
+        <i class="fa-solid fa-sign-out"></i>
+        Cerrar sesión
+        </button>
+    </a>
+</div>
+<h1 class="title">Recopets</h1>
+{% endblock %}
+{% block content %}
+<h1>Resultados de la detección de etiquetas</h1>
+
+<div class="row">
+    
+    <div class="col-md-6">
+        <img src = {{ imagen }} alt="Imagen de bienvenida">
+    </div>
+      
+    <div class="col-md-6">
+        {% if animal %}
+        <h2>Animal detectado:</h2>
+        <h3>{{ animal }}</h3>
+        <p>{{ wikiTexto }}</p>
+        <p>{{ wikiUrl|safe}}</p>
+        {% else %}
+        <h2>No se detectó ningún animal en la imagen.</h2>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}

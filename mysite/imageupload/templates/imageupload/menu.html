@@ -1,16 +1,23 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Botones con CSS en archivo externo</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
-</head>
-<body>
+{% extends "imageupload/base.html" %}
+{% block title %}Recopets - Menú{% endblock %}
+{% block header %}
+    <div class="button-container-right">
+        <a href="{% url 'imageupload:logout' %}" class="link-button logout-button">
+            <button class="button">
+                <i class="fa-solid fa-sign-out"></i>
+                Cerrar sesión
+            </button>
+        </a>
+    </div>
 
-	<h1 class="title">Recopets</h1>
-
-	<button class="button">Analizar imagen</button>
-	<button class="button">Historial</button>
-
-</body>
-</html>
+    <h1 class="title">Recopets</h1>
+    <h2 class="title">Bienvenido {{ nombre }}</h2>
+{% endblock%}
+{% block content %}
+<form method="post" enctype="multipart/form-data" action="{% url 'imageupload:rekognition' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="button" type="submit">Reconocer imagen</button>
+</form>
+<a href="{% url 'imageupload:historial' %}" class="link-button"><button class="button">Historial</button></a>
+{% endblock %}

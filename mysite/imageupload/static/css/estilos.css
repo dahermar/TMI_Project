@@ -1,10 +1,12 @@
 body {
 	font-family: Candara, sans-serif;
 	color: #333;
+	text-align: center;
+	background: linear-gradient(to bottom, white, #a3a1a1) no-repeat center center fixed;
+	background-size: 100% 100%;
 }
 
 .title {
-	text-align: center;
 	color: #333;
 	font-size: 32px;
 	margin-bottom: 20px;
@@ -16,21 +18,72 @@ body {
 	padding: 10px 20px;
 	font-size: 16px;
 	cursor: pointer;
-	text-align: center;
 	text-decoration: none;
 	outline: none;
-	color: #fff;
-	background-color: #333;
+	color: black;
+	background-color: #e5e5e5;
 	border: none;
 	border-radius: 5px;
+	width: 250px;
 }
 
 .button:hover {
-	background-color: #3e8e41;
+	background-color: #ddd;
 }
 
 .button:active {
-	background-color: #3e8e41;
-	box-shadow: 0 3px #357e3d;
+	background-color: #979797;
+	/*box-shadow: 0 3px #357e3d;*/
 	transform: translateY(4px);
+}
+
+.link-button {
+	text-decoration: none;
+}
+  
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 20px;
+}
+  
+.goBackButton {
+	display: inline-block;
+}
+  
+.logout-button {
+	display: inline-block;
+	text-align: right;
+}
+
+.button-container-left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.button-container-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.button-container-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.imagen-little {
+	width: 150px;
+	height: 150px;
+}
+
+#video {
+	width: 30%;
+	height: auto;
 }
