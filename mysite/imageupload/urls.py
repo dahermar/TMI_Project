@@ -15,5 +15,6 @@ urlpatterns = [
     path('webcam/', webcam_view, name='webcam'),
     path('logout/', views.logout_view, name='logout'),
     path('rekognition/', views.rekognition_view, name='rekognition'),
+    path('rekognition_historial/<str:foto>', views.rekognition_historial, name='rekognition_historial'),
     path('reconocimiento_facial/', views.reconocimiento_facial, name='reconocimiento_facial')
 ]

@@ -29,6 +29,7 @@ from contextlib import closing
 from tempfile import gettempdir
 
 import threading
+import random
 
 import playsound
 
@@ -50,75 +51,95 @@ def play_audio(audio):
 def rekognition_view(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
-        
+
         if form.is_valid():
             # obtener la imagen del formulario
             image = form.cleaned_data['imagen']
-            # guardar la imagen en la ubicación deseada
-            
+
             images_dir = os.path.join(settings.MEDIA_ROOT)
 
             if not os.path.exists(images_dir):
                 os.makedirs(images_dir)
+
             
             file_path = os.path.join(settings.MEDIA_ROOT, image.name)
             with open(file_path, 'wb') as f:
                 f.write(image.read())
 
-            try:
-                imagen =Image(image=file_path)
-                animal, wikiTexto, wikiUrl = imagen.detect_animal()
-                
-                if wikiUrl != "":
-                    wikiUrl = "Para mas información consultar: <a href=\"" + wikiUrl + "\" target=\"_blank\">" + wikiUrl + "</a>" 
-                results = {
-                    "animal": animal,
-                    "wikiTexto": wikiTexto,
-                    "imagen": "/static/images/" + image.name,
-                    "wikiUrl": wikiUrl
-                }
-                
-                usuario_id = request.session['id']
-
-                usuarioController.agregar_registro(usuario_id=usuario_id, nombre=animal)
-                
-                # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
-
-                # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
-                
-                try:
-                    audio = PollyAudio()
-                    response = audio.transcript_text(wikiTexto)
-                    
-                    audio_id = request.session['audio_id']
-                    request.session['audio_id'] = audio_id + 1
-
-                    audioName = "audio" + str(audio_id) + ".mp3"
-
-                    if 'AudioStream' in response:
-                        with closing(response["AudioStream"]) as stream:
-                            output = os.path.join(gettempdir(), audioName)
-                            with open(output, "wb") as file:
-                                file.write(stream.read())
-                        
-                        print("Ruta: ", output)
-                        playsound.playsound(output, False)
-                        
-                        print("RUTA ABSOLUTA:", request.build_absolute_uri())
-
-                        return render(request, 'imageupload/rekognition_results.html', results)
-                    else:
-                        raise Exception('Error al sintetizar el texto dado.')
-                except Exception as e:
-                    print('Error al sintetizar el texto dado.')
-                    print(e)
-                    return render(request, 'imageupload/rekognition_results.html', results)
-                
-            except Exception as e:
-                logger.error('Error: ' + str(e))
+            # guardar la imagen en la ubicación deseada
+            return rekognition_animal(request, image.name)
         else:
             form = ImageUploadForm()
         return render(request, 'imageupload/menu.html', {'form': form})
+
+
+def rekognition_historial(request, foto):
+    return rekognition_animal(request, foto, False)
+
+
+def rekognition_animal(request, image_name, guardarHistorial=True):
+    
+    file_path = os.path.join(settings.MEDIA_ROOT, image_name)
+    
+    
+    try:
+        imagen =Image(image=file_path)
+        animal, wikiTexto, wikiUrl = imagen.detect_animal()
+        
+        if wikiUrl != "":
+            wikiUrl = "Para mas información consultar: <a href=\"" + wikiUrl + "\" target=\"_blank\">" + wikiUrl + "</a>" 
+        results = {
+            "animal": animal,
+            "wikiTexto": wikiTexto,
+            "imagen": "/static/images/" + image_name,
+            "wikiUrl": wikiUrl
+        }
+        
+        usuario_id = request.session['id']
+
+        if guardarHistorial:
+            usuarioController.agregar_registro(usuario_id=usuario_id, nombre=animal, foto_path=image_name)
+        
+        # Aquí se puede incluir cualquier código adicional para procesar los resultados obtenidos
+
+        # Convertir los resultados obtenidos en un diccionario para pasarlo a la plantilla
+        
+        try:
+            audio = PollyAudio()
+            response = audio.transcript_text(wikiTexto)
+            
+            #audio_id = request.session['audio_id']
+            #request.session['audio_id'] = audio_id + 1
+
+            audioName = "audio" + str(random.randint(0, 999999999)) + ".mp3"
+
+            if 'AudioStream' in response:
+                with closing(response["AudioStream"]) as stream:
+                    output = os.path.join(gettempdir(), audioName)
+                    with open(output, "wb") as file:
+                        file.write(stream.read())
+                
+                if sys.platform == "win32":
+                    playsound.playsound(output, False)
+                else:
+                    audioSeg = AudioSegment.from_file(output, format='mp3')
+                    audioThread = threading.Thread(target=play_audio, args=(audioSeg,))
+                    audioThread.start()
+                
+                print("RUTA ABSOLUTA:", request.build_absolute_uri())
+
+                return render(request, 'imageupload/rekognition_results.html', results)
+            else:
+                raise Exception('Error al sintetizar el texto dado.')
+        except Exception as e:
+            print('Error al sintetizar el texto dado.')
+            print(e)
+            return render(request, 'imageupload/rekognition_results.html', results)
+        
+    except Exception as e:
+        logger.error('Error: ' + str(e))
+
+    
 
 def index(request):
     latest_question_list = [1, 2, 3, 4, 5, 6, 7]
@@ -247,8 +268,10 @@ def reconocimiento_facial(request):
             request.session['id'] = usuario["id"]  
             request.session['nombre'] = usuario["nombre"]  
             request.session['foto'] = usuario["foto"]
+            """
             if 'audio_id' not in request.session.keys():
                 request.session['audio_id'] = 0 
+            """
             return JsonResponse({'valido': True})
         
         return JsonResponse({'valido': False})

@@ -65,7 +65,7 @@ class UsuarioController:
     def get_usuario(self):
         return None
 
-    def agregar_registro(self, usuario_id, nombre):
+    def agregar_registro(self, usuario_id, nombre, foto_path):
         try:
             with open(self.archivo_historial, 'r') as archivo:
                 data = json.load(archivo)
@@ -77,7 +77,8 @@ class UsuarioController:
             nuevo_registro = {
                 "id": next_id,
                 "animal": nombre,
-                "fecha": str(fecha).split('.')[0]
+                "fecha": str(fecha).split('.')[0],
+                "foto": foto_path
             }
             # Incrementar next_id y guardar el nuevo valor en el archivo
             data['next_id'] = next_id + 1

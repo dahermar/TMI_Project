@@ -21,8 +21,12 @@
 {% block content %}
 <h2>Historial</h2>
 {% if registros %}
-    {% for registro in registros %}
-        <p>{{ registro.animal }} - {{ registro.fecha }}</p><br />
+    {% for registro in registros reversed %}
+        <form method="post" enctype="multipart/form-data" action="{% url 'imageupload:rekognition_historial' foto=registro.foto %}">
+            {% csrf_token %}
+            <button class="button" type="submit">{{ registro.animal }} - {{ registro.fecha }}</button>
+        </form>
+        
     {% endfor %}
 {% endif %}
 {% endblock %}
